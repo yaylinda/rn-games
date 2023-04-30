@@ -1,35 +1,37 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {create} from 'zustand';
-import { GameMode } from '../../types';
-import { GAME_MODE } from '../utils/constants';
+import {GameMode, GameModeBoardConfig} from '../../types';
+import {GAME_MODE} from '../utils/constants';
+import {getBoardConfig} from '../utils/config';
 
 export const DEFAULT_GAME_MODE = GameMode.FIVE_BY_FIVE;
 
 interface GameModeState {
-  gameMode: GameMode;
-  showNewGameModeSelectionDialog: boolean;
-  init: () => void;
-  updateMode: (mode: GameMode) => void;
-  openNewGameModeSelectionDialog: () => void;
-  closeNewGameModeSelectionDialog: () => void;
+    gameModeBoardConfig: GameModeBoardConfig;
+    showNewGameModeSelectionDialog: boolean;
+    init: () => void;
+    updateMode: (mode: GameMode) => void;
+    openNewGameModeSelectionDialog: () => void;
+    closeNewGameModeSelectionDialog: () => void;
 }
 
-const useGameModeStore = create<GameModeState>()((set ) => ({
-    gameMode: DEFAULT_GAME_MODE,
+const useGameModeStore = create<GameModeState>()((set) => ({
+    gameModeBoardConfig: getBoardConfig(DEFAULT_GAME_MODE),
     showNewGameModeSelectionDialog: false,
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     init: async () => {
-        const gameMode = await AsyncStorage.getItem(GAME_MODE);
+        const gameModeStr = await AsyncStorage.getItem(GAME_MODE);
 
         set((state) => {
-            if (gameMode) {
+            if (gameModeStr) {
+                const gameMode: GameMode = GameMode[gameModeStr as keyof typeof GameMode];
                 return {
                     ...state,
-                    gameMode: GameMode[gameMode as keyof typeof GameMode],
+                    gameModeBoardConfig: getBoardConfig(gameMode),
                 };
             }
 
@@ -37,35 +39,35 @@ const useGameModeStore = create<GameModeState>()((set ) => ({
 
             return {
                 ...state,
-                gameMode: DEFAULT_GAME_MODE,
+                gameModeBoardConfig: getBoardConfig(DEFAULT_GAME_MODE),
             };
         });
     },
 
     /**
-   *
-   * @param gameMode
-   * @returns
-   */
+     *
+     * @param gameMode
+     * @returns
+     */
     updateMode: (gameMode: GameMode) =>
         set((state) => {
             AsyncStorage.setItem(GAME_MODE, gameMode);
-            return { ...state, gameMode };
+            return {...state, gameModeBoardConfig: getBoardConfig(gameMode)};
         }),
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     openNewGameModeSelectionDialog: () =>
-        set((state) => ({ ...state, showNewGameModeSelectionDialog: true })),
+        set((state) => ({...state, showNewGameModeSelectionDialog: true})),
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     closeNewGameModeSelectionDialog: () =>
-        set((state) => ({ ...state, showNewGameModeSelectionDialog: false })),
+        set((state) => ({...state, showNewGameModeSelectionDialog: false})),
 }));
 
 export default useGameModeStore;

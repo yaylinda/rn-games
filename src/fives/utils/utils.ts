@@ -1,29 +1,7 @@
-import { MoveDirection, GameMode } from '../../types';
-import { mergeTiles } from './merger';
-import { moveTiles } from './mover';
-import type { TileData, GameBoardConfig } from '../../types';
-
-/**
- *
- * @param code
- * @returns
- */
-export const convertKeyCodeToDirection = (
-    code: string
-): MoveDirection | null => {
-    switch (code) {
-    case 'ArrowLeft':
-        return MoveDirection.LEFT;
-    case 'ArrowRight':
-        return MoveDirection.RIGHT;
-    case 'ArrowUp':
-        return MoveDirection.UP;
-    case 'ArrowDown':
-        return MoveDirection.DOWN;
-    default:
-        return null;
-    }
-};
+import type {GameModeBoardConfig, TileData} from '../../types';
+import {MoveDirection} from '../../types';
+import {mergeTiles} from './merger';
+import {moveTiles} from './mover';
 
 /**
  *
@@ -31,7 +9,7 @@ export const convertKeyCodeToDirection = (
  * @param config
  * @returns
  */
-export const isGameOver = (board: TileData[][], config: GameBoardConfig): boolean => {
+export const isGameOver = (board: TileData[][], config: GameModeBoardConfig): boolean => {
     const boardFull = isBoardFull(board, config);
 
     if (!boardFull) {
@@ -54,9 +32,9 @@ export const isGameOver = (board: TileData[][], config: GameBoardConfig): boolea
 const moveAndMerge = (
     board: TileData[][],
     dir: MoveDirection,
-    config: GameBoardConfig,
+    config: GameModeBoardConfig,
 ): TileData[][] => {
-    const { intermediateBoard } = moveTiles(board, dir, config);
+    const {intermediateBoard} = moveTiles(board, dir, config);
     return mergeTiles(intermediateBoard, config).board;
 };
 
@@ -66,7 +44,7 @@ const moveAndMerge = (
  * @param config
  * @returns
  */
-const isBoardFull = (board: TileData[][], config: GameBoardConfig): boolean => {
+const isBoardFull = (board: TileData[][], config: GameModeBoardConfig): boolean => {
     for (let row = 0; row < config.numRows; row++) {
         for (let col = 0; col < config.numCols; col++) {
             if (board[row][col].value === 0) {
@@ -84,7 +62,7 @@ const isBoardFull = (board: TileData[][], config: GameBoardConfig): boolean => {
  * @param config
  * @returns
  */
-const isSame = (board1: TileData[][], board2: TileData[][], config: GameBoardConfig): boolean => {
+const isSame = (board1: TileData[][], board2: TileData[][], config: GameModeBoardConfig): boolean => {
     for (let row = 0; row < config.numRows; row++) {
         for (let col = 0; col < config.numCols; col++) {
             if (board1[row][col].value !== board2[row][col].value) {
@@ -93,47 +71,4 @@ const isSame = (board1: TileData[][], board2: TileData[][], config: GameBoardCon
         }
     }
     return true;
-};
-
-/**
- * 
- * @param gameMode 
- * @returns 
- */
-export const getBoardConfig = (gameMode: GameMode): GameBoardConfig => {
-    switch (gameMode) {
-    case GameMode.FOUR_BY_FOUR:
-        return {
-            numRows: 4,
-            numCols: 4,
-            tileSize: 60,
-            tileSpacing: 10,
-            startRow: 1,
-            startCol: 1,
-            tileWithBorder: 52,
-            borderWidth: 4,
-        };
-    case GameMode.FIVE_BY_FIVE:
-        return {
-            numRows: 5,
-            numCols: 5,
-            tileSize: 50,
-            tileSpacing: 5,
-            startRow: 2,
-            startCol: 2,
-            tileWithBorder: 42,
-            borderWidth: 4,
-        };
-    case GameMode.DAILY_CHALLENGE:
-        return {
-            numRows: 5,
-            numCols: 5,
-            tileSize: 50,
-            tileSpacing: 5,
-            startRow: 2,
-            startCol: 2,
-            tileWithBorder: 42,
-            borderWidth: 4,
-        };
-    }
 };

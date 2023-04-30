@@ -9,18 +9,18 @@ import useHighScoresStore from '../stores/highScoresStore';
 
 const NewGameModeSelectionDialog = () => {
     const {
-        gameMode,
+        gameModeBoardConfig,
         showNewGameModeSelectionDialog,
         closeNewGameModeSelectionDialog,
         updateMode,
     } = useGameModeStore();
     const {newGame} = useGameStore();
     const {resetPosting} = useHighScoresStore();
-    const [selectedMode, setSelectedMode] = useState<GameMode>(gameMode);
+    const [selectedMode, setSelectedMode] = useState<GameMode>(gameModeBoardConfig);
 
     useEffect(() => {
-        setSelectedMode(gameMode);
-    }, [gameMode]);
+        setSelectedMode(gameModeBoardConfig);
+    }, [gameModeBoardConfig]);
 
     const startNewGame = () => {
         updateMode(selectedMode);

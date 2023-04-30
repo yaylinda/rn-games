@@ -1,20 +1,16 @@
-import React, {  useEffect } from 'react';
-import { View, Text } from 'react-native';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
-} from 'react-native-reanimated';
-import { colors } from '../../theme';
+import React from 'react';
+import {Text, View} from 'react-native';
+import {colors} from '../../theme';
 import useGameModeStore from '../stores/gameModeStore';
-import {
-    MERGABLES,
-    STARTING_NUMS,
-    START_NUM_2,
-    START_NUM_3,
-} from '../utils/constants';
-import { getBoardConfig } from '../utils/utils';
-import type { Coordinates, GameBoardConfig, TileData } from '../../types';
+import {MERGABLES, START_NUM_2, START_NUM_3, STARTING_NUMS,} from '../utils/constants';
+import type {Coordinates, GameModeBoardConfig, TileData} from '../../types';
+import Animated, {
+    SharedValue,
+    useAnimatedStyle,
+    useDerivedValue,
+    useSharedValue,
+    withTiming
+} from 'react-native-reanimated';
 
 /**
  * Font sizes
@@ -30,7 +26,7 @@ const FIVE_DIGIT_FONT_SIZE = 10;
  * @param config
  * @returns
  */
-const getTileSize = (isStartingNum: boolean, config: GameBoardConfig) => ({
+const getTileSize = (isStartingNum: boolean, config: GameModeBoardConfig) => ({
     height: config.tileSize,
     width: config.tileSize,
     borderStyle: isStartingNum ? 'none' : 'solid',
@@ -119,15 +115,17 @@ const STYLES: { [key in string]: any } = {
 
 const convertCoordinateToPixel = (
     coord: number,
-    config: GameBoardConfig
+    config: GameModeBoardConfig
 ): number => {
     return coord * config.tileSize + coord * config.tileSpacing;
 };
 
 interface TileProps {
-  tile: TileData;
-  coordinates: Coordinates;
-  previousCoordinates?: Coordinates;
+    tile: TileData;
+    initialCoordinates: Coordinates;
+    // previousCoordinates?: Coordinates;
+    dragX: SharedValue<number>;
+    dragY: SharedValue<number>;
 }
 
 /**
@@ -136,34 +134,30 @@ interface TileProps {
  * @param param0
  * @returns
  */
-const Tile = ({ tile, coordinates, previousCoordinates }: TileProps) => {
-    console.log(
-        `******************* rerender!!!! tileId=${tile.id}, value=${tile.value}`
-    );
-    const {  value, isNew, isMerge } = tile;
-    const { gameMode } = useGameModeStore();
-    const config = getBoardConfig(gameMode);
+const Tile = ({tile, initialCoordinates, dragX, dragY}: TileProps) => {
+    const {id, value, isNew, isMerge} = tile;
+
+    console.log(`[TILE RENDER] tileId=${id}, value=${value}`);
+
+    const {gameModeBoardConfig} = useGameModeStore();
+
     const isStartingNum = STARTING_NUMS.includes(value);
 
-    const currtop = convertCoordinateToPixel(coordinates.row, config);
-    const currleft = convertCoordinateToPixel(coordinates.col, config);
-    const prevTop = previousCoordinates
-        ? convertCoordinateToPixel(previousCoordinates.row, config)
-        : null;
-    const prevLeft = previousCoordinates
-        ? convertCoordinateToPixel(previousCoordinates.col, config)
-        : null;
+    const initTop = convertCoordinateToPixel(initialCoordinates.row, gameModeBoardConfig);
+    const initLeft = convertCoordinateToPixel(initialCoordinates.col, gameModeBoardConfig);
 
+    const derivedDragX = useDerivedValue(() => dragX.value);
+    const derivedDragY = useDerivedValue(() => dragY.value);
     const scale = useSharedValue(isNew ? 0 : 1);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (isMerge) {
             scale.value = 1.1;
             setTimeout(() => (scale.value = 1), 100);
         }
     }, [isMerge, scale]);
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (isNew) {
             setTimeout(() => {
                 scale.value = 1.1;
@@ -172,21 +166,17 @@ const Tile = ({ tile, coordinates, previousCoordinates }: TileProps) => {
         }
     }, [isNew, scale]);
 
-    const style = useAnimatedStyle(() => {
+    const animatedStyles = useAnimatedStyle(() => {
         return {
             transform: [
                 {
-                    scale: withTiming(scale.value, { duration: 100 }),
+                    scale: withTiming(scale.value, {duration: 100}),
                 },
                 {
-                    translateX: withTiming(prevLeft === null ? 0 : currleft - prevLeft, {
-                        duration: 1000,
-                    }),
+                    translateX: withTiming(derivedDragX.value),
                 },
                 {
-                    translateY: withTiming(prevTop === null ? 0 : currtop - prevTop, {
-                        duration: 1000,
-                    }),
+                    translateY: withTiming(derivedDragY.value),
                 },
             ],
         };
@@ -204,13 +194,13 @@ const Tile = ({ tile, coordinates, previousCoordinates }: TileProps) => {
             style={[
                 DEFAULT,
                 STYLES[`tile_${value}`],
-                getTileSize(isStartingNum, config),
-                style,
+                getTileSize(isStartingNum, gameModeBoardConfig),
+                animatedStyles,
                 {
                     zIndex: isNew ? 0 : getTileZIndex(),
-                    position: 'absolute',
-                    top: prevTop === null ? currtop : prevTop,
-                    left: prevLeft === null ? currleft : prevLeft,
+                    // position: 'absolute',
+                    top: initTop,
+                    left: initLeft,
                 },
             ]}
         >
@@ -237,7 +227,7 @@ const SMALL_TILE_WITH_BORDER = {
  * @param param0
  * @returns
  */
-export const PreviewTile = ({ value }: { value: number }) => {
+export const PreviewTile = ({value}: { value: number }) => {
     const isStartNum = value === START_NUM_2 || value === START_NUM_3;
 
     return (

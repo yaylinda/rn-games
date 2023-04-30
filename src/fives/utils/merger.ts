@@ -1,6 +1,6 @@
 import { sum } from 'lodash';
 import { initBoard } from './init';
-import type { GameBoardConfig, IntermediateTileData, TileData } from '../../types';
+import type { GameModeBoardConfig, IntermediateTileData, TileData } from '../../types';
 
 /**
  *
@@ -10,7 +10,7 @@ import type { GameBoardConfig, IntermediateTileData, TileData } from '../../type
  */
 export const mergeTiles = (
     intermediateBoard: IntermediateTileData[][],
-    config: GameBoardConfig,
+    config: GameModeBoardConfig,
 ): {
   board: TileData[][];
   merged: { [key in number]: number };

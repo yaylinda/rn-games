@@ -1,10 +1,10 @@
-import {GameBoardConfig, IntermediateTileData, TileData} from '../../types';
+import {GameModeBoardConfig, IntermediateTileData, TileData} from '../../types';
 
 /**
  *
  * @returns
  */
-export const initBoard = (config: GameBoardConfig): TileData[][] => {
+export const initBoard = (config: GameModeBoardConfig): TileData[][] => {
     return Array.from(Array(config.numRows)).map(() =>
         Array.from(Array(config.numCols)).map(() => ({
             id: '',
@@ -19,7 +19,7 @@ export const initBoard = (config: GameBoardConfig): TileData[][] => {
  *
  * @returns
  */
-export const initIntermediateBoard = (config: GameBoardConfig): IntermediateTileData[][] => {
+export const initIntermediateBoard = (config: GameModeBoardConfig): IntermediateTileData[][] => {
     return Array.from(Array(config.numRows)).map(() =>
         Array.from(Array(config.numCols)).map(() => ({ tiles: [] }))
     );

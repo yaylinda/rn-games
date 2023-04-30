@@ -1,7 +1,7 @@
 import { MoveDirection } from '../../types';
 import { START_NUM_2, START_NUM_3 } from './constants';
 import { initIntermediateBoard } from './init';
-import type { TileData, IntermediateTileData, GameBoardConfig } from '../../types';
+import type { TileData, IntermediateTileData, GameModeBoardConfig } from '../../types';
 
 /**
  *
@@ -13,7 +13,7 @@ import type { TileData, IntermediateTileData, GameBoardConfig } from '../../type
 export const moveTiles = (
     board: TileData[][],
     dir: MoveDirection,
-    config: GameBoardConfig,
+    config: GameModeBoardConfig,
 ): {
   intermediateBoard: IntermediateTileData[][];
   moved: { rows: number[]; cols: number[] };

@@ -54,7 +54,7 @@ export interface HighScoreDoc extends HighScore {
   timestamp: number;
 }
 
-export interface GameBoardConfig {
+export interface GameModeBoardConfig {
   numRows: number;
   numCols: number;
   tileSize: number;
@@ -63,4 +63,5 @@ export interface GameBoardConfig {
   startCol: number;
   tileWithBorder: number;
   borderWidth: number;
+  gameMode: GameMode;
 }

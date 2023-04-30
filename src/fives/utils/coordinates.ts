@@ -1,6 +1,6 @@
 import { shuffle } from 'lodash';
 import { MoveDirection } from '../../types';
-import type { TileData, Coordinates, GameBoardConfig } from '../../types';
+import type { TileData, Coordinates, GameModeBoardConfig } from '../../types';
 
 /**
  *
@@ -14,7 +14,7 @@ export const getCoordinatesForNewTile = (
     board: TileData[][],
     dir: MoveDirection,
     moved: { cols: number[]; rows: number[] },
-    config: GameBoardConfig
+    config: GameModeBoardConfig
 ): Coordinates | null => {
     switch (dir) {
     case MoveDirection.LEFT: {

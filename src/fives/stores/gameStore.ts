@@ -7,7 +7,7 @@ import {generateTileValue} from '../utils/generator';
 import {convertBoardToLocations} from '../utils/locations';
 import {mergeTiles} from '../utils/merger';
 import {moveTiles} from '../utils/mover';
-import {getBoardConfig, isGameOver,} from '../utils/utils';
+import {isGameOver,} from '../utils/utils';
 import useGameModeStore from './gameModeStore';
 import type {MoveDirection, TileData, TileLocations} from '../../types';
 import {initBoard, initIntermediateBoard} from '../utils/init';
@@ -15,6 +15,7 @@ import {initBoard, initIntermediateBoard} from '../utils/init';
 export interface GameState {
     hasStarted: boolean;
     board: TileData[][];
+    initTileLocations: TileLocations;
     tileLocations: TileLocations;
     prevTileLocations: TileLocations;
     isGameOver: boolean;
@@ -35,7 +36,8 @@ export interface GameState {
 
 const useGameStore = create<GameState>()((set) => ({
     hasStarted: false,
-    board: initBoard(getBoardConfig(useGameModeStore.getState().gameMode)),
+    board: initBoard(useGameModeStore.getState().gameModeBoardConfig),
+    initTileLocations: {},
     tileLocations: {},
     prevTileLocations: {},
     isGameOver: false,
@@ -59,7 +61,7 @@ const useGameStore = create<GameState>()((set) => ({
                 return state;
             }
 
-            const config = getBoardConfig(useGameModeStore.getState().gameMode);
+            const config = useGameModeStore.getState().gameModeBoardConfig;
 
             // Move and merge the tiles.
             const {intermediateBoard, moved} = moveTiles(state.board, dir, config);
@@ -131,7 +133,7 @@ const useGameStore = create<GameState>()((set) => ({
      */
     newGame: () =>
         set((state) => {
-            const config = getBoardConfig(useGameModeStore.getState().gameMode);
+            const config = useGameModeStore.getState().gameModeBoardConfig;
 
             const board = initBoard(config);
 
@@ -143,14 +145,17 @@ const useGameStore = create<GameState>()((set) => ({
                 isMerge: false,
             };
 
-            const updatedState = {
-                ...state,
-                board: board,
-                tileLocations: convertBoardToLocations(
+            const locations = convertBoardToLocations(
                     board,
                     initIntermediateBoard(config),
                     config
-                ),
+                );
+
+            const updatedState = {
+                ...state,
+                board: board,
+                initTileLocations: locations,
+                tileLocations: locations,
                 prevTileLocations: {},
                 hasStarted: true,
                 isGameOver: false,
