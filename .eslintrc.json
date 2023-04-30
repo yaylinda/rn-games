@@ -101,7 +101,7 @@
     ],
     "no-undefined": "off",
     "no-var": "error",
-    "no-console": "error",
+    "no-console": "warn",
     "indent": [
       "error",
       4
