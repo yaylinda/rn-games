@@ -57,6 +57,8 @@ const useGameStore = create<GameState>()((set) => ({
      */
     move: (dir: MoveDirection) =>
         set((state) => {
+            console.log('[gameStore] doing move logic!');
+
             if (!state.hasStarted || state.isGameOver) {
                 return state;
             }

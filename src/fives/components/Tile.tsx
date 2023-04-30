@@ -122,8 +122,9 @@ const convertCoordinateToPixel = (
 
 interface TileProps {
     tile: TileData;
-    initialCoordinates: Coordinates;
-    // previousCoordinates?: Coordinates;
+    // initCoordinates: Coordinates;
+    currentCoordinates: Coordinates;
+    previousCoordinates?: Coordinates;
     dragX: SharedValue<number>;
     dragY: SharedValue<number>;
 }
@@ -134,20 +135,43 @@ interface TileProps {
  * @param param0
  * @returns
  */
-const Tile = ({tile, initialCoordinates, dragX, dragY}: TileProps) => {
+const Tile = ({tile, currentCoordinates, previousCoordinates, dragX, dragY}: TileProps) => {
     const {id, value, isNew, isMerge} = tile;
 
-    console.log(`[TILE RENDER] tileId=${id}, value=${value}`);
+    console.log(`[TILE RENDER] ${id}
+        isNew=${isNew}
+        currentCoordinates=${JSON.stringify(currentCoordinates)}
+        previousCoordinates=${JSON.stringify(previousCoordinates)}
+        value=${value}
+    `);
 
     const {gameModeBoardConfig} = useGameModeStore();
 
     const isStartingNum = STARTING_NUMS.includes(value);
 
-    const initTop = convertCoordinateToPixel(initialCoordinates.row, gameModeBoardConfig);
-    const initLeft = convertCoordinateToPixel(initialCoordinates.col, gameModeBoardConfig);
+    // const initTop = convertCoordinateToPixel(initCoordinates.row, gameModeBoardConfig);
+    // const initLeft = convertCoordinateToPixel(initCoordinates.col, gameModeBoardConfig);
+    const currTop = convertCoordinateToPixel(currentCoordinates.row, gameModeBoardConfig);
+    const currLeft = convertCoordinateToPixel(currentCoordinates.col, gameModeBoardConfig);
+    const prevTop = previousCoordinates
+        ? convertCoordinateToPixel(previousCoordinates.row, gameModeBoardConfig)
+        : null;
+    const prevLeft = previousCoordinates
+        ? convertCoordinateToPixel(previousCoordinates.col, gameModeBoardConfig)
+        : null;
 
-    const derivedDragX = useDerivedValue(() => dragX.value);
-    const derivedDragY = useDerivedValue(() => dragY.value);
+    const derivedDragX = useDerivedValue(() => isNew ? 0 : dragX.value);
+    const derivedDragY = useDerivedValue(() => isNew ? 0 : dragY.value);
+    // const xPos = useDerivedValue(() => {
+    //     const pos = prevLeft === null ? currLeft : prevLeft;
+    //     return pos + dragX.value;
+    // });
+    // const yPos = useDerivedValue(() => {
+    //     const pos = prevTop === null ? currTop : prevTop;
+    //     return pos + dragY.value;
+    // });
+    const xPos = useSharedValue(prevLeft === null ? currLeft : prevLeft);
+    const yPos = useSharedValue(prevTop === null ? currTop : prevTop);
     const scale = useSharedValue(isNew ? 0 : 1);
 
     React.useEffect(() => {
@@ -168,15 +192,23 @@ const Tile = ({tile, initialCoordinates, dragX, dragY}: TileProps) => {
 
     const animatedStyles = useAnimatedStyle(() => {
         return {
+            top: yPos.value,
+            left: xPos.value,
             transform: [
                 {
                     scale: withTiming(scale.value, {duration: 100}),
                 },
                 {
-                    translateX: withTiming(derivedDragX.value),
+                    translateX: withTiming(derivedDragX.value, {},() => {
+                        // xPos.value = xPos.value + dragX.value;
+                        console.log('after translateX');
+                    }),
                 },
                 {
-                    translateY: withTiming(derivedDragY.value),
+                    translateY: withTiming(derivedDragY.value, {}, () => {
+                        // yPos.value = yPos.value + dragY.value;
+                        console.log('after translateY');
+                    }),
                 },
             ],
         };
@@ -198,9 +230,8 @@ const Tile = ({tile, initialCoordinates, dragX, dragY}: TileProps) => {
                 animatedStyles,
                 {
                     zIndex: isNew ? 0 : getTileZIndex(),
-                    // position: 'absolute',
-                    top: initTop,
-                    left: initLeft,
+                    // top: prevTop === null ? currTop : prevTop,
+                    // left: prevLeft === null ? currLeft : prevLeft,
                 },
             ]}
         >
