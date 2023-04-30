@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { colors } from '../../theme';
+import {colors, UNIT_PX} from '../../theme';
 import GameBoard from './GameBoard';
 import GameStatsBar from './GameStatsBar';
 
@@ -25,6 +25,6 @@ const styles = StyleSheet.create({
         width: 270,
         marginRight: 'auto',
         marginLeft: 'auto',
-        marginTop: 3,
+        marginTop: 3 * UNIT_PX,
     },
 });

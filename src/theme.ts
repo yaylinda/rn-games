@@ -1,3 +1,5 @@
+export const UNIT_PX = 4;
+
 export const colors = Object.freeze({
     BRAND: '#00ADB5',
     LIGHT: '#EEEEEE',
