@@ -1,10 +1,11 @@
 import { sum } from 'lodash';
-import { initBoard } from './utils';
-import type { GameBoardConfig, IntermediateTileData, TileData } from '../types';
+import { initBoard } from './init';
+import type { GameBoardConfig, IntermediateTileData, TileData } from '../../types';
 
 /**
  *
  * @param intermediateBoard
+ * @param config
  * @returns
  */
 export const mergeTiles = (

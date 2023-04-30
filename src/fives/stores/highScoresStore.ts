@@ -1,8 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import create from 'zustand';
-
+import {create} from 'zustand';
 import { LAST_POSTED_GAME_ID } from '../utils/constants';
-import type { HighScoreDoc } from '../types';
+import type { HighScoreDoc } from '../../types';
 
 interface HighScoresState {
   showHighScoresDialog: boolean;

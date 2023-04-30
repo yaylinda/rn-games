@@ -37,24 +37,24 @@ const NewGameModeSelectionDialog = () => {
             <Text style={{color: colors.ACCENT}}>New Game?</Text>
             <View>
                 <Pressable onPress={() => setSelectedMode(GameMode.DAILY_CHALLENGE)}>
-                    <FontAwesome5 name='calendar-today'/>
+                    <FontAwesome5 name='calendar-day'/>
                     <Text>{GameMode.DAILY_CHALLENGE}</Text>
                 </Pressable>
                 <Pressable onPress={() => setSelectedMode(GameMode.FOUR_BY_FOUR)}>
-                    <FontAwesome5 name='numeric-4-box'/>
+                    <FontAwesome5 name='dice-four'/>
                     <Text>{GameMode.FOUR_BY_FOUR}</Text>
                 </Pressable>
                 <Pressable onPress={() => setSelectedMode(GameMode.FIVE_BY_FIVE)}>
-                    <FontAwesome5 name='numeric-5-box'/>
+                    <FontAwesome5 name='dice-five'/>
                     <Text>{GameMode.FIVE_BY_FIVE}</Text>
                 </Pressable>
             </View>
             <View style={{justifyContent: 'space-between'}}>
                 <Pressable onPress={closeNewGameModeSelectionDialog}>
-                    <FontAwesome5 name='close' color='red'/>
+                    <FontAwesome5 name='times' color='red'/>
                 </Pressable>
                 <Pressable onPress={startNewGame}>
-                    <FontAwesome5 name='check' color='grenn'/>
+                    <FontAwesome5 name='check' color='green'/>
                 </Pressable>
             </View>
         </Modal>

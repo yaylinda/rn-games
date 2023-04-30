@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-import create from 'zustand';
+import {create} from 'zustand';
 import {
     LOCAL_STORAGE_CLIENT_ID,
     LOCAL_STORAGE_USERNAME,

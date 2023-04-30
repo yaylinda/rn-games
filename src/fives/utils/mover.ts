@@ -1,6 +1,6 @@
 import { MoveDirection } from '../../types';
 import { START_NUM_2, START_NUM_3 } from './constants';
-import { initIntermediateBoard } from './utils';
+import { initIntermediateBoard } from './init';
 import type { TileData, IntermediateTileData, GameBoardConfig } from '../../types';
 
 /**

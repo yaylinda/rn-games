@@ -1,7 +1,7 @@
 import { MoveDirection, GameMode } from '../../types';
 import { mergeTiles } from './merger';
 import { moveTiles } from './mover';
-import type { TileData, IntermediateTileData, GameBoardConfig } from '../../types';
+import type { TileData, GameBoardConfig } from '../../types';
 
 /**
  *
@@ -23,31 +23,6 @@ export const convertKeyCodeToDirection = (
     default:
         return null;
     }
-};
-
-/**
- *
- * @returns
- */
-export const initBoard = (config: GameBoardConfig): TileData[][] => {
-    return Array.from(Array(config.numRows)).map(() =>
-        Array.from(Array(config.numCols)).map(() => ({
-            id: '',
-            value: 0,
-            isNew: false,
-            isMerge: false,
-        }))
-    );
-};
-
-/**
- *
- * @returns
- */
-export const initIntermediateBoard = (config: GameBoardConfig): IntermediateTileData[][] => {
-    return Array.from(Array(config.numRows)).map(() =>
-        Array.from(Array(config.numCols)).map(() => ({ tiles: [] }))
-    );
 };
 
 /**

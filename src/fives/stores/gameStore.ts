@@ -1,43 +1,39 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import uuid from 'react-native-uuid';
-import create from 'zustand';
-import { LOCAL_STORAGE_GAME_STATE } from '../utils/constants';
-import { getCoordinatesForNewTile } from '../utils/coordinates';
-import { generateTileValue } from '../utils/generator';
-import { convertBoardToLocations } from '../utils/locations';
-import { mergeTiles } from '../utils/merger';
-import { moveTiles } from '../utils/mover';
-import {
-    getBoardConfig,
-    initBoard,
-    initIntermediateBoard,
-    isGameOver,
-} from '../utils/utils';
+import {create} from 'zustand';
+import {LOCAL_STORAGE_GAME_STATE} from '../utils/constants';
+import {getCoordinatesForNewTile} from '../utils/coordinates';
+import {generateTileValue} from '../utils/generator';
+import {convertBoardToLocations} from '../utils/locations';
+import {mergeTiles} from '../utils/merger';
+import {moveTiles} from '../utils/mover';
+import {getBoardConfig, isGameOver,} from '../utils/utils';
 import useGameModeStore from './gameModeStore';
-import type { TileData, MoveDirection, TileLocations } from '../../types';
+import type {MoveDirection, TileData, TileLocations} from '../../types';
+import {initBoard, initIntermediateBoard} from '../utils/init';
 
 export interface GameState {
-  hasStarted: boolean;
-  board: TileData[][];
-  tileLocations: TileLocations;
-  prevTileLocations: TileLocations;
-  isGameOver: boolean;
-  showGameOverDialog: boolean;
-  score: number;
-  moves: number;
-  merged: { [key in number]: number };
-  generated: { [key in number]: number };
-  nextValue: number;
-  lastMoveDirection: MoveDirection | null;
-  currentGameId: string;
-  move: (dir: MoveDirection) => void;
-  newGame: () => void;
-  restoreState: () => void;
-  openGameOverDialog: () => void;
-  closeGameOverDialog: () => void;
+    hasStarted: boolean;
+    board: TileData[][];
+    tileLocations: TileLocations;
+    prevTileLocations: TileLocations;
+    isGameOver: boolean;
+    showGameOverDialog: boolean;
+    score: number;
+    moves: number;
+    merged: { [key in number]: number };
+    generated: { [key in number]: number };
+    nextValue: number;
+    lastMoveDirection: MoveDirection | null;
+    currentGameId: string;
+    move: (dir: MoveDirection) => void;
+    newGame: () => void;
+    restoreState: () => void;
+    openGameOverDialog: () => void;
+    closeGameOverDialog: () => void;
 }
 
-const useGameStore = create<GameState>()((set ) => ({
+const useGameStore = create<GameState>()((set) => ({
     hasStarted: false,
     board: initBoard(getBoardConfig(useGameModeStore.getState().gameMode)),
     tileLocations: {},
@@ -53,10 +49,10 @@ const useGameStore = create<GameState>()((set ) => ({
     currentGameId: uuid.v4() as string,
 
     /**
-   *
-   * @param dir
-   * @returns
-   */
+     *
+     * @param dir
+     * @returns
+     */
     move: (dir: MoveDirection) =>
         set((state) => {
             if (!state.hasStarted || state.isGameOver) {
@@ -66,8 +62,8 @@ const useGameStore = create<GameState>()((set ) => ({
             const config = getBoardConfig(useGameModeStore.getState().gameMode);
 
             // Move and merge the tiles.
-            const { intermediateBoard, moved } = moveTiles(state.board, dir, config);
-            const { board, merged, score } = mergeTiles(intermediateBoard, config);
+            const {intermediateBoard, moved} = moveTiles(state.board, dir, config);
+            const {board, merged, score} = mergeTiles(intermediateBoard, config);
 
             // Update the count of the tiles that got merged.
             for (const key in merged) {
@@ -115,8 +111,8 @@ const useGameStore = create<GameState>()((set ) => ({
                 showGameOverDialog: gameOver,
                 moves: moves,
                 score: state.score + score,
-                merged: { ...state.merged },
-                generated: { ...state.generated },
+                merged: {...state.merged},
+                generated: {...state.generated},
                 nextValue: usedNextValue
                     ? generateTileValue(state.merged, state.generated, moves)
                     : state.nextValue,
@@ -130,9 +126,9 @@ const useGameStore = create<GameState>()((set ) => ({
         }),
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     newGame: () =>
         set((state) => {
             const config = getBoardConfig(useGameModeStore.getState().gameMode);
@@ -174,9 +170,9 @@ const useGameStore = create<GameState>()((set ) => ({
         }),
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     restoreState: async () => {
         const restoredStateStr = await AsyncStorage.getItem(
             LOCAL_STORAGE_GAME_STATE
@@ -189,24 +185,24 @@ const useGameStore = create<GameState>()((set ) => ({
                     prevTileLocations: {},
                 };
             } else {
-                return { ...state };
+                return {...state};
             }
         });
     },
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     openGameOverDialog: () =>
-        set((state) => ({ ...state, showGameOverDialog: true })),
+        set((state) => ({...state, showGameOverDialog: true})),
 
     /**
-   *
-   * @returns
-   */
+     *
+     * @returns
+     */
     closeGameOverDialog: () =>
-        set((state) => ({ ...state, showGameOverDialog: false })),
+        set((state) => ({...state, showGameOverDialog: false})),
 }));
 
 export default useGameStore;
