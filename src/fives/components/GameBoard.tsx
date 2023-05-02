@@ -2,7 +2,7 @@ import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {PanGestureHandler,} from 'react-native-gesture-handler';
 import useGameStore from '../stores/gameStore';
-import Tile from './Tile';
+import Tile from './tile/Tile';
 import GameGrid from './GameGrid';
 import Animated, {runOnJS, useAnimatedGestureHandler, useSharedValue, withTiming} from 'react-native-reanimated';
 import useGameModeStore from '../stores/gameModeStore';
@@ -39,7 +39,7 @@ export default function GameBoard() {
                     dragY.value = 0;
                 }
             }
-            console.log(`[DRAG] x=${e.translationX}, y=${e.translationY}`);
+            // console.log(`[DRAG] x=${e.translationX}, y=${e.translationY}`);
         },
         onEnd: (e) => {
             console.log(`[END] x=${e.translationX}, y=${e.translationY}`);
@@ -50,10 +50,10 @@ export default function GameBoard() {
             if (Math.abs(e.translationX) > Math.abs(e.translationY)) {
                 // Move horizontal
                 if (Math.abs(e.translationX) > threshold) {
+                    console.log('*************************** MOVE HORIZONTAL');
                     runOnJS(move)(e.translationX < 0 ? MoveDirection.LEFT : MoveDirection.RIGHT);
                     dragX.value = withTiming(gridSize * (e.translationX < 0 ? -1 : 1));
                     dragY.value = 0;
-                    console.log('*************************** MOVE HORIZONTAL');
                 } else {
                     dragX.value = withTiming(0);
                     dragY.value = withTiming(0);
@@ -61,15 +61,21 @@ export default function GameBoard() {
             } else {
                 // Move vertical
                 if (Math.abs(e.translationY) > threshold) {
+                    console.log('*************************** MOVE VERTICAL');
                     runOnJS(move)(e.translationY < 0 ? MoveDirection.UP : MoveDirection.DOWN );
                     dragX.value = 0;
                     dragY.value = withTiming(gridSize * (e.translationY < 0 ? -1 : 1));
-                    console.log('*************************** MOVE VERTICAL');
                 } else {
                     dragX.value = withTiming(0);
                     dragY.value = withTiming(0);
                 }
             }
+
+            // if (Math.abs(e.translationX) > threshold || Math.abs(e.translationY) > threshold) {
+            //     console.log('[END] resetting drag');
+            //     dragX.value = 0;
+            //     dragY.value = 0;
+            // }
         },
     });
 

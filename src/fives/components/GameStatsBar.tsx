@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import useGameStore from '../stores/gameStore';
-import { PreviewTile } from './Tile';
+import PreviewTile from './tile/PreviewTile';
 
 export default function GameStatsBar() {
     const { hasStarted, moves, score, nextValue: nextValue } = useGameStore();
