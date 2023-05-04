@@ -1,73 +1,91 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
-import {PanGestureHandler,} from 'react-native-gesture-handler';
+import {PanGestureHandler, PanGestureHandlerGestureEvent,} from 'react-native-gesture-handler';
 import useGameStore from '../stores/gameStore';
 import Tile from './tile/Tile';
 import GameGrid from './GameGrid';
-import Animated, {runOnJS, useAnimatedGestureHandler, useSharedValue, withTiming} from 'react-native-reanimated';
+import Animated, {
+    runOnJS,
+    useAnimatedGestureHandler,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming
+} from 'react-native-reanimated';
 import useGameModeStore from '../stores/gameModeStore';
 import {MoveDirection} from '../../types';
 // import {translationMultiplier} from '../utils/mover';
 
-export default function GameBoard() {
-    const {initTileLocations, tileLocations, prevTileLocations, move} = useGameStore();
-    const {gameModeBoardConfig: {numRows, numCols, tileSize, tileSpacing}} = useGameModeStore();
+type DragContext = {
+    translateX: number;
+    translateY: number;
+};
 
-    const gridSize = tileSize + tileSpacing;
-    const threshold = gridSize / 2;
+export default function GameBoard() {
+    const {tileLocations, move} = useGameStore();
+    // const {gameModeBoardConfig: {numRows, numCols, tileSize, tileSpacing}} = useGameModeStore();
+
+    // const gridSize = tileSize + tileSpacing;
+    // const threshold = gridSize / 2;
     const dragX = useSharedValue(0);
     const dragY = useSharedValue(0);
 
-    const gestureHander = useAnimatedGestureHandler({
-        onActive: (e) => {
+    const gestureHander = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, DragContext>({
+        onStart: (event, context) => {
+            context.translateX = dragX.value;
+            context.translateY = dragY.value;
+        },
+        onActive: (e, context) => {
+            const threshold = 35;
+            dragX.value = e.translationX + context.translateX;
+            dragY.value = e.translationY + context.translateY;
+
             if (Math.abs(e.translationX) > Math.abs(e.translationY)) {
                 // Move horizontal
                 if (Math.abs(e.translationX) > threshold) {
-                    dragX.value = gridSize * (e.translationX < 0 ? -1 : 1);
-                    dragY.value = 0;
+                    dragX.value = e.translationX + context.translateX;
+                    dragY.value = context.translateY;
                 } else {
-                    dragX.value = 0;
-                    dragY.value = 0;
+                    dragX.value = context.translateX;
+                    dragY.value = context.translateY;
                 }
             } else {
                 // Move vertical
                 if (Math.abs(e.translationY) > threshold) {
-                    dragX.value = 0;
-                    dragY.value = gridSize * (e.translationY < 0 ? -1 : 1);
+                    dragX.value = context.translateX;
+                    dragY.value = e.translationY + context.translateY;
                 } else {
-                    dragX.value = 0;
-                    dragY.value = 0;
+                    dragX.value = context.translateX;
+                    dragY.value = context.translateY;
                 }
             }
-            // console.log(`[DRAG] x=${e.translationX}, y=${e.translationY}`);
+            console.log(`[DRAG] x=${e.translationX}, y=${e.translationY}`);
         },
-        onEnd: (e) => {
+        onEnd: (e, context) => {
+            const threshold = 35;
+            const gridSize = 70;
             console.log(`[END] x=${e.translationX}, y=${e.translationY}`);
-            // const doMove = (dir: MoveDirection) => {
-            //     move(dir);
-            // };
 
             if (Math.abs(e.translationX) > Math.abs(e.translationY)) {
                 // Move horizontal
                 if (Math.abs(e.translationX) > threshold) {
                     console.log('*************************** MOVE HORIZONTAL');
-                    runOnJS(move)(e.translationX < 0 ? MoveDirection.LEFT : MoveDirection.RIGHT);
-                    dragX.value = withTiming(gridSize * (e.translationX < 0 ? -1 : 1));
-                    dragY.value = 0;
+                    // runOnJS(move)(e.translationX < 0 ? MoveDirection.LEFT : MoveDirection.RIGHT, () => {});
+                    dragX.value = withTiming(gridSize * (e.translationX < 0 ? -1 : 1) + context.translateX);
+                    dragY.value = context.translateY;
                 } else {
-                    dragX.value = withTiming(0);
-                    dragY.value = withTiming(0);
+                    dragX.value = withTiming(context.translateX);
+                    dragY.value = withTiming(context.translateY);
                 }
             } else {
                 // Move vertical
                 if (Math.abs(e.translationY) > threshold) {
                     console.log('*************************** MOVE VERTICAL');
-                    runOnJS(move)(e.translationY < 0 ? MoveDirection.UP : MoveDirection.DOWN );
-                    dragX.value = 0;
-                    dragY.value = withTiming(gridSize * (e.translationY < 0 ? -1 : 1));
+                    // runOnJS(move)(e.translationY < 0 ? MoveDirection.UP : MoveDirection.DOWN, () => {});
+                    dragX.value = context.translateX;
+                    dragY.value = withTiming(gridSize * (e.translationY < 0 ? -1 : 1) + context.translateY);
                 } else {
-                    dragX.value = withTiming(0);
-                    dragY.value = withTiming(0);
+                    dragX.value = withTiming(context.translateX);
+                    dragY.value = withTiming(context.translateY);
                 }
             }
 
@@ -77,6 +95,33 @@ export default function GameBoard() {
             //     dragY.value = 0;
             // }
         },
+    });
+
+    const animatedStyles = useAnimatedStyle(() => {
+        return {
+            // top: yPos.value,
+            // left: xPos.value,
+            transform: [
+                {
+                    translateX: withTiming(dragX.value, {},() => {
+                        // console.log(`${tile.id} after translateX - derivedDragX=${derivedDragX.value}`);
+                        // if (prevLeft) {
+                        //     xPos.value = xPos.value + dragX.value;
+                        // }
+                        // derivedDragX.value = 0;
+                    }),
+                },
+                {
+                    translateY: withTiming(dragY.value, {}, () => {
+                        // console.log(`${tile.id} after translateY - derivedDragY=${derivedDragY.value}`);
+                        // if (prevTop) {
+                        //     yPos.value = yPos.value + dragY.value;
+                        // }
+                        // derivedDragY.value = 0;
+                    }),
+                },
+            ],
+        };
     });
 
     console.log('********** [GAMEBOARD RENDER]');
@@ -89,15 +134,16 @@ export default function GameBoard() {
                     {Object.values(tileLocations)
                         .reverse()
                         .map((tile) => (
+                            <Animated.View key={tile.tile.id} style={animatedStyles}>
                             <Tile
-                                key={tile.tile.id}
                                 tile={tile.tile}
                                 // initCoordinates={prevTileLocations[tile.tile.id]?.coordinates}
                                 currentCoordinates={tile.coordinates}
-                                previousCoordinates={prevTileLocations[tile.tile.id]?.coordinates}
+                                // previousCoordinates={prevTileLocations[tile.tile.id]?.coordinates}
                                 dragX={dragX}
                                 dragY={dragY}
                             />
+                            </Animated.View>
                         ))}
                 </Animated.View>
             </PanGestureHandler>

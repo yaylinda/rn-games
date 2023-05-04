@@ -27,7 +27,7 @@ export interface GameState {
     nextValue: number;
     lastMoveDirection: MoveDirection | null;
     currentGameId: string;
-    move: (dir: MoveDirection) => void;
+    move: (dir: MoveDirection, callback: () => void) => void;
     newGame: () => void;
     restoreState: () => void;
     openGameOverDialog: () => void;
@@ -55,7 +55,7 @@ const useGameStore = create<GameState>()((set) => ({
      * @param dir
      * @returns
      */
-    move: (dir: MoveDirection) =>
+    move: (dir: MoveDirection, callback: () => void) =>
         set((state) => {
             console.log('[gameStore] doing move logic!');
 

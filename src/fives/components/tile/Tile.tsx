@@ -36,6 +36,8 @@ const Tile = ({tile, currentCoordinates, previousCoordinates, dragX, dragY}: Til
         currentCoordinates=${JSON.stringify(currentCoordinates)}
         previousCoordinates=${JSON.stringify(previousCoordinates)}
         value=${value}
+        dragX=${dragX.value}
+        dragY=${dragY.value}
     `);
 
     const {gameModeBoardConfig} = useGameModeStore();
@@ -53,8 +55,8 @@ const Tile = ({tile, currentCoordinates, previousCoordinates, dragX, dragY}: Til
         ? convertCoordinateToPixel(previousCoordinates.col, gameModeBoardConfig)
         : null;
 
-    const derivedDragX = useDerivedValue(() => isNew ? 0 : dragX.value);
-    const derivedDragY = useDerivedValue(() => isNew ? 0 : dragY.value);
+    const derivedDragX = useSharedValue(isNew ? 0 : dragX.value);
+    const derivedDragY = useSharedValue(isNew ? 0 : dragY.value);
     // const xPos = useDerivedValue(() => {
     //     const pos = prevLeft === null ? currLeft : prevLeft;
     //     return pos + dragX.value;
@@ -94,23 +96,25 @@ const Tile = ({tile, currentCoordinates, previousCoordinates, dragX, dragY}: Til
                 },
                 {
                     translateX: withTiming(derivedDragX.value, {},() => {
-                        // console.log(`after translateX - dragX.value=${dragX.value}`);
+                        console.log(`${tile.id} after translateX - derivedDragX=${derivedDragX.value}`);
                         // if (prevLeft) {
                         //     xPos.value = xPos.value + dragX.value;
                         // }
+                        derivedDragX.value = 0;
                     }),
                 },
                 {
                     translateY: withTiming(derivedDragY.value, {}, () => {
-                        // console.log(`after translateY - dragY.value=${dragY.value}`);
+                        console.log(`${tile.id} after translateY - derivedDragY=${derivedDragY.value}`);
                         // if (prevTop) {
                         //     yPos.value = yPos.value + dragY.value;
                         // }
+                        derivedDragY.value = 0;
                     }),
                 },
             ],
         };
-    });
+    }, [derivedDragX, derivedDragY]);
 
     const getTileZIndex = () => {
         if (isNew) {
@@ -131,8 +135,8 @@ const Tile = ({tile, currentCoordinates, previousCoordinates, dragX, dragY}: Til
                 animatedStyles,
                 {
                     zIndex: getTileZIndex(),
-                    // top: yPos.value,
-                    // left: xPos.value,
+                    // top: currTop,
+                    // left: currLeft,
                 },
             ]}
         >
