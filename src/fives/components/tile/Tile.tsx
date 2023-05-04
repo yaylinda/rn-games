@@ -135,8 +135,8 @@ const Tile = ({tile, currentCoordinates, previousCoordinates, dragX, dragY}: Til
                 animatedStyles,
                 {
                     zIndex: getTileZIndex(),
-                    // top: currTop,
-                    // left: currLeft,
+                    top: currTop,
+                    left: currLeft,
                 },
             ]}
         >
