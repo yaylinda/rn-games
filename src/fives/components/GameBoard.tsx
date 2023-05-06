@@ -43,7 +43,7 @@ export default function GameBoard() {
             if (Math.abs(e.translationX) > Math.abs(e.translationY)) {
                 // Move horizontal
                 if (Math.abs(e.translationX) > threshold && Math.abs(e.translationX) <= gridSize) {
-                    dragX.value = e.translationX * 2 + context.translateX;
+                    dragX.value = e.translationX + context.translateX;
                     dragY.value = context.translateY;
                 } else if (Math.abs(e.translationX) > gridSize) {
                     dragX.value = gridSize + context.translateX;
@@ -56,7 +56,7 @@ export default function GameBoard() {
                 // Move vertical
                 if (Math.abs(e.translationY) > threshold && Math.abs(e.translationY) <= gridSize) {
                     dragX.value = context.translateX;
-                    dragY.value = e.translationY * 2 + context.translateY;
+                    dragY.value = e.translationY + context.translateY;
                 } else if (Math.abs(e.translationY) > gridSize) {
                     dragX.value = context.translateX;
                     dragY.value = gridSize + context.translateY;
@@ -76,8 +76,8 @@ export default function GameBoard() {
                 // Move horizontal
                 if (Math.abs(e.translationX) > threshold) {
                     console.log('*************************** MOVE HORIZONTAL');
-                    runOnJS(move)(e.translationX < 0 ? MoveDirection.LEFT : MoveDirection.RIGHT, () => {});
-                    dragX.value = withTiming(gridSize * (e.translationX < 0 ? -1 : 1) + context.translateX);
+                    // runOnJS(move)(e.translationX < 0 ? MoveDirection.LEFT : MoveDirection.RIGHT, () => {});
+                    dragX.value = withTiming((e.translationX < 0 ? -gridSize : gridSize) + context.translateX);
                     dragY.value = context.translateY;
                 } else {
                     dragX.value = withTiming(context.translateX);
@@ -87,9 +87,9 @@ export default function GameBoard() {
                 // Move vertical
                 if (Math.abs(e.translationY) > threshold) {
                     console.log('*************************** MOVE VERTICAL');
-                    runOnJS(move)(e.translationY < 0 ? MoveDirection.UP : MoveDirection.DOWN, () => {});
+                    // runOnJS(move)(e.translationY < 0 ? MoveDirection.UP : MoveDirection.DOWN, () => {});
                     dragX.value = context.translateX;
-                    dragY.value = withTiming(gridSize * (e.translationY < 0 ? -1 : 1) + context.translateY);
+                    dragY.value = withTiming(e.translationY + context.translateY);
                 } else {
                     dragX.value = withTiming(context.translateX);
                     dragY.value = withTiming(context.translateY);
